@@ -46,19 +46,21 @@ function ProductFilters({
             "Shoes",
           ].map((item) => (
             <label
-              key={item}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <input
-                type="radio"
-                name="category"
-                value={item}
-                checked={category === item}
-                onChange={(e) => setCategory(e.target.value)}
-              />
+  key={item}
+  htmlFor={`category-${item}`}
+  className="flex items-center gap-2 cursor-pointer"
+>
+  <input
+    id={`category-${item}`}
+    type="radio"
+    name="category"
+    value={item}
+    checked={category === item}
+    onChange={(e) => setCategory(e.target.value)}
+  />
 
-              <span>{item}</span>
-            </label>
+  <span>{item}</span>
+</label>
           ))}
 
         </div>
@@ -70,21 +72,33 @@ function ProductFilters({
 
         <div className="flex gap-2">
 
-          <input
-            type="number"
-            value={minPrice}
-            onChange={(e) => setMinPrice(Number(e.target.value))}
-            placeholder="Min"
-            className="w-1/2 border rounded-lg px-3 py-2"
-          />
+         <label htmlFor="min-price" className="sr-only">
+  Minimum Price
+</label>
 
-          <input
-            type="number"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(Number(e.target.value))}
-            placeholder="Max"
-            className="w-1/2 border rounded-lg px-3 py-2"
-          />
+<input
+  id="min-price"
+  name="minPrice"
+  type="number"
+  value={minPrice}
+  onChange={(e) => setMinPrice(Number(e.target.value))}
+  placeholder="Min"
+  className="w-1/2 border rounded-lg px-3 py-2"
+/>
+
+          <label htmlFor="max-price" className="sr-only">
+  Maximum Price
+</label>
+
+<input
+  id="max-price"
+  name="maxPrice"
+  type="number"
+  value={maxPrice}
+  onChange={(e) => setMaxPrice(Number(e.target.value))}
+  placeholder="Max"
+  className="w-1/2 border rounded-lg px-3 py-2"
+/>
 
         </div>
       </div>
@@ -93,11 +107,17 @@ function ProductFilters({
       <div className="mb-8">
         <h3 className="font-semibold mb-3">Rating</h3>
 
-        <select
-          value={minRating}
-          onChange={(e) => setMinRating(Number(e.target.value))}
-          className="w-full border rounded-lg px-3 py-2"
-        >
+          <label htmlFor="filter-rating" className="sr-only">
+  Minimum Rating
+</label>
+
+<select
+  id="filter-rating"
+  name="minRating"
+  value={minRating}
+  onChange={(e) => setMinRating(Number(e.target.value))}
+  className="w-full border rounded-lg px-3 py-2"
+> 
           <option value={0}>All Ratings</option>
           <option value={4}>4.0+ ⭐</option>
           <option value={4.5}>4.5+ ⭐</option>
@@ -109,11 +129,17 @@ function ProductFilters({
       <div>
         <h3 className="font-semibold mb-3">Sort By</h3>
 
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2"
-        >
+        <label htmlFor="filter-sort" className="sr-only">
+  Sort By
+</label>
+
+<select
+  id="filter-sort"
+  name="sortBy"
+  value={sortBy}
+  onChange={(e) => setSortBy(e.target.value)}
+  className="w-full border rounded-lg px-3 py-2"
+>
           <option value="featured">Featured</option>
           <option value="priceLow">Price: Low → High</option>
           <option value="priceHigh">Price: High → Low</option>

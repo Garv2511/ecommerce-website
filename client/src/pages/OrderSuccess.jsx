@@ -15,13 +15,26 @@ function OrderSuccess() {
   // ================= LOAD ORDER =================
 
   useEffect(() => {
-    const savedOrder =
-      JSON.parse(localStorage.getItem("lastOrder"));
+  const savedOrders =
+    JSON.parse(localStorage.getItem("orders")) || [];
 
-    if (savedOrder) {
-      setOrder(savedOrder);
-    }
-  }, []);
+  const foundOrder = savedOrders.find(
+    (item) => item.orderId === orderId
+  );
+
+  if (foundOrder) {
+    setOrder(foundOrder);
+    return;
+  }
+
+  // Fallback to lastOrder
+  const lastOrder =
+    JSON.parse(localStorage.getItem("lastOrder"));
+
+  if (lastOrder && lastOrder.orderId === orderId) {
+    setOrder(lastOrder);
+  }
+}, [orderId]);
 
   // ================= ORDER NOT FOUND =================
 
@@ -275,17 +288,30 @@ function OrderSuccess() {
 
               <div className="mt-6 bg-gray-50 rounded-lg p-4">
 
-                <p className="text-sm text-gray-500">
-                  Payment Method
-                </p>
+  <p className="text-sm text-gray-500">
+    Payment Method
+  </p>
 
-                <p className="font-semibold text-gray-800 mt-1">
-                  {paymentLabel[
-                    order.paymentMethod
-                  ] || order.paymentMethod}
-                </p>
+  <p className="font-semibold text-gray-800 mt-1">
+    {paymentLabel[order.paymentMethod] ||
+      order.paymentMethod}
+  </p>
 
-              </div>
+  <p className="text-sm text-gray-500 mt-3">
+    Payment Status
+  </p>
+
+  <p
+    className={`font-semibold mt-1 ${
+      order.paymentStatus === "Paid"
+        ? "text-green-600"
+        : "text-yellow-600"
+    }`}
+  >
+    {order.paymentStatus}
+  </p>
+
+</div>
 
             </div>
 
@@ -366,18 +392,19 @@ function OrderSuccess() {
         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-10">
 
           <Link
+    to="/orders"
+    className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition"
+  >
+    📦
+    View My Orders
+  </Link>
+
+          <Link
             to="/products"
             className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition"
           >
             <FaShoppingBag />
             Continue Shopping
-          </Link>
-
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center border border-gray-300 hover:bg-white text-gray-700 px-8 py-3 rounded-lg font-semibold transition"
-          >
-            Back to Home
           </Link>
 
         </div>

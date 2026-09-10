@@ -6,6 +6,7 @@ import {
   FaTrash,
   FaStar,
 } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
@@ -68,7 +69,7 @@ function Wishlist() {
       new Event("cartUpdated")
     );
 
-    alert(`${product.name} added to cart!`);
+    toast.success(`${product.name} added to cart!`);
   };
 
   // ================= CLEAR WISHLIST =================
