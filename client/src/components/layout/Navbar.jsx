@@ -8,6 +8,12 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
+import {
+  getCart,
+  getWishlist,
+  getCurrentUser,
+  removeCurrentUser,
+} from "../../utils/storage";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -20,11 +26,8 @@ function Navbar() {
   // ================= LOAD CART + WISHLIST =================
 
   const updateCounts = () => {
-    const savedCart =
-      JSON.parse(localStorage.getItem("cart")) || [];
-
-    const savedWishlist =
-      JSON.parse(localStorage.getItem("wishlist")) || [];
+    const savedCart = getCart();
+    const savedWishlist = getWishlist();
 
     const totalCartItems = savedCart.reduce(
       (total, item) =>
@@ -39,8 +42,7 @@ function Navbar() {
   // ================= LOAD CURRENT USER =================
 
   const updateUser = () => {
-    const savedUser =
-      JSON.parse(localStorage.getItem("currentUser")) || null;
+    const savedUser = getCurrentUser();
 
     setCurrentUser(savedUser);
   };
@@ -73,7 +75,7 @@ function Navbar() {
   // ================= LOGOUT =================
 
   const handleLogout = () => {
-    localStorage.removeItem("currentUser");
+    removeCurrentUser();
 
     setCurrentUser(null);
 

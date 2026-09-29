@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import {
+  getCurrentUser,
+  removeCurrentUser,
+} from "../utils/storage";
 
 function Profile() {
   const navigate = useNavigate();
@@ -10,8 +14,7 @@ function Profile() {
   // ================= LOAD USER =================
 
   useEffect(() => {
-    const savedUser =
-      JSON.parse(localStorage.getItem("currentUser")) || null;
+    const savedUser = getCurrentUser();
 
     setCurrentUser(savedUser);
   }, []);
@@ -19,7 +22,7 @@ function Profile() {
   // ================= LOGOUT =================
 
   const handleLogout = () => {
-    localStorage.removeItem("currentUser");
+    removeCurrentUser();
 
     window.dispatchEvent(
       new Event("userUpdated")

@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import {
+  getCart,
+  getCurrentUser,
+  getOrders,
+  saveOrders,
+  saveLastOrder,
+  removeCart,
+} from "../utils/storage";
 
 function Checkout() {
   const navigate = useNavigate();
@@ -23,24 +31,21 @@ function Checkout() {
   // ================= LOAD DATA =================
 
   useEffect(() => {
-    const savedCart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+  const savedCart = getCart();
+  const savedUser = getCurrentUser();
 
-    const savedUser =
-      JSON.parse(localStorage.getItem("currentUser")) || null;
+  setCart(savedCart);
+  setCurrentUser(savedUser);
 
-    setCart(savedCart);
-    setCurrentUser(savedUser);
-
-    if (savedUser) {
-      setFormData((prev) => ({
-        ...prev,
-        fullName: savedUser.name || "",
-        email: savedUser.email || "",
-        phone: savedUser.phone || "",
-      }));
-    }
-  }, []);
+  if (savedUser) {
+    setFormData((prev) => ({
+      ...prev,
+      fullName: savedUser.name || "",
+      email: savedUser.email || "",
+      phone: savedUser.phone || "",
+    }));
+  }
+}, []);
 
   // ================= FORM INPUT =================
 
@@ -56,12 +61,14 @@ function Checkout() {
   // ================= CALCULATIONS =================
 
   const subtotal = cart.reduce(
-    (total, item) =>
-      total +
-      Number(item.price) *
-        (Number(item.quantity) || 1),
-    0
-  );
+  (total, item) => {
+    const price = Number(item.price) || 0;
+    const quantity = Number(item.quantity) || 1;
+
+    return total + price * quantity;
+  },
+  0
+);
 
   const deliveryCharge =
     subtotal === 0 || subtotal >= 1000 ? 0 : 50;
@@ -79,8 +86,7 @@ function Checkout() {
   const placeOrder = (event) => {
     event.preventDefault();
 
-    const savedUser =
-      JSON.parse(localStorage.getItem("currentUser")) || null;
+    const savedUser = getCurrentUser();
 
     if (!savedUser) {
       toast.error("Please login before placing an order.");
@@ -142,29 +148,22 @@ function Checkout() {
 
     // ================= SAVE ORDER =================
 
-    const existingOrders =
-      JSON.parse(localStorage.getItem("orders")) || [];
+    const existingOrders = getOrders();
 
     existingOrders.unshift(order);
 
-    localStorage.setItem(
-      "orders",
-      JSON.stringify(existingOrders)
-    );
+    saveOrders(existingOrders);
     window.dispatchEvent(new Event("ordersUpdated"));
 
-    localStorage.setItem(
-      "lastOrder",
-      JSON.stringify(order)
-    );
+    saveLastOrder(order);
 
     // ================= CLEAR CART =================
 
-    localStorage.removeItem("cart");
+    removeCart();
 
-    window.dispatchEvent(
-      new Event("cartUpdated")
-    );
+window.dispatchEvent(
+  new Event("cartUpdated")
+);
 
     // ================= SUCCESS =================
 
@@ -810,7 +809,7 @@ function Checkout() {
                       </p>
 
                       <p className="text-sm text-gray-500">
-                        Qty: {item.quantity}
+                        Qty: {Number(item.quantity) || 1}
                       </p>
 
                     </div>

@@ -17,6 +17,7 @@ import Orders from "./pages/Orders";
 import OrderDetails from "./pages/OrderDetails";
 import OrderTracking from "./pages/OrderTracking";
 import AdminOrders from "./pages/admin/AdminOrders";
+import NotFound from "./pages/NotFound";
 
 
 function App() {
@@ -106,6 +107,10 @@ function App() {
         <Route
           path="/admin/orders"
           element={<AdminOrders />}
+        />
+        <Route
+          path="*"
+          element={<NotFound />}
         />
       </Routes>
     </>

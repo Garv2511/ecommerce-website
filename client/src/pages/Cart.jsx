@@ -6,6 +6,11 @@ import {
   FaMinus,
   FaShoppingCart,
 } from "react-icons/fa";
+import {
+  getCart,
+  saveCart as saveCartToStorage,
+  removeCart,
+} from "../utils/storage";
 
 function Cart() {
   const navigate = useNavigate();
@@ -14,8 +19,7 @@ function Cart() {
   // ================= LOAD CART =================
 
   useEffect(() => {
-    const savedCart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+    const savedCart = getCart();
 
     setCart(savedCart);
   }, []);
@@ -25,12 +29,11 @@ function Cart() {
   const saveCart = (updatedCart) => {
   setCart(updatedCart);
 
-  localStorage.setItem(
-    "cart",
-    JSON.stringify(updatedCart)
-  );
+  saveCartToStorage(updatedCart);
 
-  window.dispatchEvent(new Event("cartUpdated"));
+  window.dispatchEvent(
+    new Event("cartUpdated")
+  );
 };
 
   // ================= INCREASE QUANTITY =================
@@ -40,7 +43,7 @@ function Cart() {
       item.id === id
         ? {
             ...item,
-            quantity: item.quantity + 1,
+            quantity: (Number(item.quantity) || 0) + 1,
           }
         : item
     );
@@ -56,7 +59,7 @@ function Cart() {
         item.id === id
           ? {
               ...item,
-              quantity: item.quantity - 1,
+              quantity: (Number(item.quantity) || 0) - 1,
             }
           : item
       )
@@ -78,19 +81,26 @@ function Cart() {
   // ================= CLEAR CART =================
 
   const clearCart = () => {
-  localStorage.removeItem("cart");
+  removeCart();
+
   setCart([]);
 
-  window.dispatchEvent(new Event("cartUpdated"));
+  window.dispatchEvent(
+    new Event("cartUpdated")
+  );
 };
 
   // ================= CALCULATIONS =================
 
   const subtotal = cart.reduce(
-    (total, item) =>
-      total + Number(item.price) * item.quantity,
-    0
-  );
+  (total, item) => {
+    const price = Number(item.price) || 0;
+    const quantity = Number(item.quantity) || 1;
+
+    return total + price * quantity;
+  },
+  0
+);
 
   const deliveryCharge =
     subtotal === 0 || subtotal >= 1000 ? 0 : 50;
@@ -98,9 +108,10 @@ function Cart() {
   const total = subtotal + deliveryCharge;
 
   const totalItems = cart.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
+  (total, item) =>
+    total + (Number(item.quantity) || 1),
+  0
+);
 
   // ================= EMPTY CART =================
 
@@ -415,7 +426,7 @@ function Cart() {
 
 
                 <span className="w-12 h-10 flex items-center justify-center border-x border-gray-300 font-bold text-gray-800">
-                  {item.quantity}
+                  {Number(item.quantity) || 1}
                 </span>
 
 

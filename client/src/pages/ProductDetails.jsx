@@ -9,21 +9,27 @@ import {
 
 import products from "../data/products";
 
+import {
+  getCart,
+  saveCart,
+  getWishlist,
+  saveWishlist,
+} from "../utils/storage";
+
 function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const product = products.find(
-    (item) => item.id.toString() === id
-  );
+  (item) => String(item?.id) === String(id)
+);
 
   const [quantity, setQuantity] = useState(1);
 
   // ================= WISHLIST STATUS =================
 
   const [isWishlisted, setIsWishlisted] = useState(() => {
-    const wishlist =
-      JSON.parse(localStorage.getItem("wishlist")) || [];
+    const wishlist = getWishlist();
 
     return wishlist.some(
       (item) => Number(item.id) === Number(id)
@@ -70,8 +76,7 @@ function ProductDetails() {
   // ================= ADD TO CART =================
 
   const addToCart = () => {
-    const cart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+    const cart = getCart();
 
     const existingProduct = cart.find(
       (item) => Number(item.id) === Number(product.id)
@@ -99,10 +104,7 @@ function ProductDetails() {
       ];
     }
 
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(updatedCart)
-    );
+    saveCart(updatedCart);
 
     window.dispatchEvent(
       new Event("cartUpdated")
@@ -121,8 +123,7 @@ function ProductDetails() {
   // ================= WISHLIST =================
 
   const toggleWishlist = () => {
-    const wishlist =
-      JSON.parse(localStorage.getItem("wishlist")) || [];
+    const wishlist = getWishlist();
 
     const exists = wishlist.some(
       (item) => Number(item.id) === Number(product.id)
@@ -152,10 +153,7 @@ function ProductDetails() {
     }
 
     // Save updated wishlist
-    localStorage.setItem(
-      "wishlist",
-      JSON.stringify(updatedWishlist)
-    );
+    saveWishlist(updatedWishlist);
 
     // Tell Navbar about the change
     window.dispatchEvent(

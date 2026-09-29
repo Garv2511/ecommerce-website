@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import {
+  getOrders,
+  saveOrders,
+} from "../../utils/storage";
 
 function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -8,11 +12,14 @@ function AdminOrders() {
   // ================= LOAD ORDERS =================
 
   const loadOrders = () => {
-    const savedOrders =
-      JSON.parse(localStorage.getItem("orders")) || [];
+  const savedOrders = getOrders();
 
-    setOrders(savedOrders);
-  };
+  setOrders(
+    savedOrders.filter(
+      (order) => !order.adminDeleted
+    )
+  );
+};
 
   useEffect(() => {
     loadOrders();
@@ -29,12 +36,12 @@ function AdminOrders() {
   // ================= UPDATE STATUS =================
 
   const updateStatus = (orderId, newStatus) => {
-  const savedOrders =
-    JSON.parse(localStorage.getItem("orders")) || [];
+  const savedOrders = getOrders();
 
   const currentOrder = savedOrders.find(
-    (order) => order.orderId === orderId
-  );
+  (order) =>
+    String(order?.orderId) === String(orderId)
+);
 
   if (!currentOrder) {
     return;
@@ -57,14 +64,20 @@ function AdminOrders() {
   const now = new Date().toISOString();
 
   const updatedOrders = savedOrders.map((order) => {
-    if (order.orderId !== orderId) {
-      return order;
-    }
+    if (String(order?.orderId) !== String(orderId)) {
+  return order;
+}
 
     return {
       ...order,
 
       status: newStatus,
+      
+      paymentStatus:
+      newStatus === "Delivered" &&
+      order.paymentMethod === "cod"
+        ? "Paid"
+        : order.paymentStatus,
 
       tracking: {
         ...(order.tracking || {}),
@@ -97,10 +110,7 @@ function AdminOrders() {
 
   // ================= SAVE =================
 
-  localStorage.setItem(
-    "orders",
-    JSON.stringify(updatedOrders)
-  );
+  saveOrders(updatedOrders);
 
   setOrders(updatedOrders);
 
@@ -124,19 +134,24 @@ const confirmDeleteOrder = () => {
     return;
   }
 
-  const savedOrders =
-    JSON.parse(localStorage.getItem("orders")) || [];
+  const savedOrders = getOrders();
 
-  const updatedOrders = savedOrders.filter(
-    (order) => order.orderId !== deleteOrderId
+  const updatedOrders = savedOrders.map((order) =>
+    String(order?.orderId) === String(deleteOrderId)
+      ? {
+          ...order,
+          adminDeleted: true,
+        }
+      : order
   );
 
-  localStorage.setItem(
-    "orders",
-    JSON.stringify(updatedOrders)
-  );
+  saveOrders(updatedOrders);
 
-  setOrders(updatedOrders);
+  setOrders(
+    updatedOrders.filter(
+      (order) => !order.adminDeleted
+    )
+  );
 
   window.dispatchEvent(
     new Event("ordersUpdated")
@@ -144,7 +159,7 @@ const confirmDeleteOrder = () => {
 
   setDeleteOrderId(null);
 
-  toast.success("Order deleted.");
+  toast.success("Order removed from Admin Orders.");
 };
 
   // ================= PAYMENT METHOD =================
@@ -468,8 +483,8 @@ const getStatusOptions = (status) => {
                       <p className="font-bold text-gray-800">
                         ₹
                         {(
-                          Number(item.price) *
-                          (Number(item.quantity) || 1)
+                          (Number(item.price) || 0) *
+                         (Number(item.quantity) || 1)
                         ).toLocaleString()}
                       </p>
 
@@ -497,9 +512,7 @@ const getStatusOptions = (status) => {
 
                     <p className="text-2xl font-bold text-blue-600">
                       ₹
-                      {Number(
-                        order.total
-                      ).toLocaleString()}
+                      {(Number(order.total) || 0).toLocaleString()}
                     </p>
 
                   </div>

@@ -16,4 +16,5 @@ const testimonials = [
   },
 ];
 
+export { testimonials };
 export default testimonials;

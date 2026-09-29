@@ -2,24 +2,29 @@ import { FaHeart, FaShoppingCart, FaStar } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import {
+  getCart,
+  saveCart,
+  getWishlist,
+  saveWishlist,
+} from "../../utils/storage";
 
 function ProductCard({ product }) {
+
   // ================= WISHLIST STATUS =================
 
   const [isWishlisted, setIsWishlisted] = useState(() => {
-    const wishlist =
-      JSON.parse(localStorage.getItem("wishlist")) || [];
+  const wishlist = getWishlist();
 
-    return wishlist.some(
-      (item) => Number(item.id) === Number(product.id)
-    );
-  });
+  return wishlist.some(
+    (item) => Number(item.id) === Number(product.id)
+  );
+});
 
   // ================= ADD TO CART =================
 
   const addToCart = () => {
-    const cart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+    const cart = getCart();
 
     const existingProduct = cart.find(
       (item) => Number(item.id) === Number(product.id)
@@ -46,10 +51,7 @@ function ProductCard({ product }) {
       ];
     }
 
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(updatedCart)
-    );
+    saveCart(updatedCart);
 
     window.dispatchEvent(
       new Event("cartUpdated")
@@ -61,8 +63,7 @@ function ProductCard({ product }) {
   // ================= WISHLIST =================
 
   const toggleWishlist = () => {
-    const wishlist =
-      JSON.parse(localStorage.getItem("wishlist")) || [];
+    const wishlist = getWishlist();
 
     const exists = wishlist.some(
       (item) => Number(item.id) === Number(product.id)
@@ -88,10 +89,7 @@ function ProductCard({ product }) {
       toast.success("Added to wishlist");
     }
 
-    localStorage.setItem(
-      "wishlist",
-      JSON.stringify(updatedWishlist)
-    );
+    saveWishlist(updatedWishlist);
 
     window.dispatchEvent(
       new Event("wishlistUpdated")

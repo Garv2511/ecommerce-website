@@ -7,6 +7,12 @@ import {
   FaStar,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
+import {
+  getWishlist,
+  saveWishlist,
+  getCart,
+  saveCart,
+} from "../utils/storage";
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
@@ -14,8 +20,7 @@ function Wishlist() {
   // ================= LOAD WISHLIST =================
 
   useEffect(() => {
-    const savedWishlist =
-      JSON.parse(localStorage.getItem("wishlist")) || [];
+    const savedWishlist = getWishlist();
 
     setWishlist(savedWishlist);
   }, []);
@@ -24,15 +29,12 @@ function Wishlist() {
 
   const removeFromWishlist = (id) => {
     const updatedWishlist = wishlist.filter(
-      (item) => item.id !== id
-    );
+  (item) => Number(item?.id) !== Number(id)
+);
 
     setWishlist(updatedWishlist);
 
-    localStorage.setItem(
-      "wishlist",
-      JSON.stringify(updatedWishlist)
-    );
+    saveWishlist(updatedWishlist);
 
     // Update Navbar wishlist count
     window.dispatchEvent(
@@ -43,26 +45,23 @@ function Wishlist() {
   // ================= ADD TO CART =================
 
   const addToCart = (product) => {
-    const cart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+    const cart = getCart();
 
     const existingProduct = cart.find(
       (item) => item.id === product.id
     );
 
     if (existingProduct) {
-      existingProduct.quantity += 1;
-    } else {
-      cart.push({
+      existingProduct.quantity =
+      (Number(existingProduct.quantity) || 0) + 1;
+   } else {
+        cart.push({
         ...product,
         quantity: 1,
       });
     }
 
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(cart)
-    );
+    saveCart(cart);
 
     // Update Navbar cart count
     window.dispatchEvent(
@@ -75,8 +74,7 @@ function Wishlist() {
   // ================= CLEAR WISHLIST =================
 
   const clearWishlist = () => {
-    localStorage.removeItem("wishlist");
-
+    saveWishlist([]);
     setWishlist([]);
 
     window.dispatchEvent(

@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaSignInAlt } from "react-icons/fa";
 import toast from "react-hot-toast";
+import {
+  getUsers,
+  saveCurrentUser,
+} from "../utils/storage";
 
 function Login() {
   const navigate = useNavigate();
@@ -40,17 +44,16 @@ function Login() {
 
     // Get registered users
 
-    const users =
-      JSON.parse(localStorage.getItem("users")) || [];
+    const users = getUsers();
 
     // Find matching user
 
     const user = users.find(
-      (item) =>
-        item.email.toLowerCase() ===
-          email.toLowerCase() &&
-        item.password === password
-    );
+  (item) =>
+    item?.email?.toLowerCase() ===
+      email.toLowerCase() &&
+    item?.password === password
+);
 
     // Invalid login
 
@@ -59,12 +62,10 @@ function Login() {
       return;
     }
 
-    // Save logged-in user
+    // Save logged-in user without password
+    const { password: _, ...safeUser } = user;
 
-    localStorage.setItem(
-      "currentUser",
-      JSON.stringify(user)
-    );
+    saveCurrentUser(safeUser);
 
     // Notify other components
 

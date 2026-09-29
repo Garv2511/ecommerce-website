@@ -2,6 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaUserPlus } from "react-icons/fa";
 import toast from "react-hot-toast";
+import {
+  getUsers,
+  saveUsers,
+  saveCurrentUser,
+} from "../utils/storage";
 
 function Register() {
   const navigate = useNavigate();
@@ -76,17 +81,16 @@ function Register() {
 
     // ================= GET USERS =================
 
-    const users =
-      JSON.parse(localStorage.getItem("users")) || [];
+    const users = getUsers();
 
     // ================= CHECK EMAIL =================
 
     const normalizedEmail = email.trim().toLowerCase();
 
     const existingUser = users.find(
-      (user) =>
-        user.email.toLowerCase() === normalizedEmail
-    );
+  (user) =>
+    user?.email?.toLowerCase() === normalizedEmail
+);
 
     if (existingUser) {
       toast.error(
@@ -111,17 +115,14 @@ function Register() {
 
     users.push(newUser);
 
-    localStorage.setItem(
-      "users",
-      JSON.stringify(users)
-    );
+    saveUsers(users);
 
-    // ================= LOGIN USER =================
+// ================= LOGIN USER =================
 
-    localStorage.setItem(
-      "currentUser",
-      JSON.stringify(newUser)
-    );
+// Save logged-in user without password
+const { password: _, ...safeUser } = newUser;
+
+saveCurrentUser(safeUser);
 
     // Notify Navbar and other components
 
